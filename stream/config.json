@@ -1,0 +1,61 @@
+{
+    "users": {
+        "admin": "Audia420TDI",
+        "user": "12platinei34"
+    },
+    "port": 3000,
+    "storagePath":"/data",
+    "streams": [
+        {
+            "name": "stream1", 
+            "refreshInterval": 500, 
+            "archiveSegment": "archive/%Y-%m-%d_%H-%M-%S.avi", 
+            "liveSegment": "live/stream1.jpg",
+            "type": "proxy", 
+            "livePlaylistName": "livePlaylist.csv",
+            "archivePlaylistName": "archivePlaylist.csv",
+            "archiveEnable": true,
+            "delayedUpdate": true,
+            "ffmpeg": {
+                "base": "ffmpeg -an -y -i http://192.168.2.35/webcam/?action=stream",
+                "liveArgs": "-c copy -f image2 -update 1 {file_path}",
+                "archiveArgs": "-c copy -f segment -reset_timestamps 1 -use_wallclock_as_timestamps 1 -strftime 1 -segment_time 60 -segment_list_type csv -segment_list {playlist_path}  {file_path}"
+            },
+            "proxy": {
+                "target": "http://192.168.2.35/webcam/?action=stream",
+                "endpoint": "/proxy/stream1"
+            }
+        },
+        {
+            "name": "stream2", 
+            "refreshInterval": 500, 
+            "archiveSegment": "live/%Y-%m-%d_%H-%M-%S.ts", 
+            "liveSegment": "archive/%Y-%m-%d_%H-%M-%S.ts", 
+            "type": "hls", 
+            "livePlaylistName": "liveStream.m3u8",
+            "archivePlaylistName": "archiveStream.m3u8",
+            "archiveEnable": false,
+            "delayedUpdate": false,
+            "ffmpeg": {
+                "base": "ffmpeg -copyts -i rtsp://admin:12345@192.168.2.52",
+                "liveArgs": "-c:v copy -an -f hls -hls_time 0 -hls_list_size 10 -start_number 1 -strftime 1 -strftime_mkdir 1 -hls_flags delete_segments -hls_segment_filename {file_path} {playlist_path}",
+                "archiveArgs": "-c:v copy -an -f hls -hls_time 60 -hls_list_size 100 -start_number 1 -strftime 1 -strftime_mkdir 1 -hls_segment_filename {file_path} {playlist_path}"
+            }
+        },
+        {
+            "name": "stream3", 
+            "refreshInterval": 500, 
+            "archiveSegment": "archive/%Y-%m-%d_%H-%M-%S.mp4", 
+            "liveSegment": "live/%03d.mp4", 
+            "type": "video", 
+            "playlistName": "playlist.csv",
+            "archiveEnable": true,
+            "delayedUpdate": false,
+            "blink": {
+                "username": "andy25lion@gmail.com",
+                "password": "Audia420TDI",
+                "authToken": "180022"
+            }
+        }
+    ]
+}

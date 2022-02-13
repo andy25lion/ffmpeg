@@ -1,0 +1,34 @@
+<html>
+    <head>
+        <style>
+            .stream-img {
+                width: 640px;
+            }
+        </style>
+    </head>
+    <body>
+        <img id="stream1" class="stream-img"/>
+        <img id="stream2" class="stream-img"/>
+        <img id="stream3" class="stream-img"/>
+        <img id="stream4" class="stream-img"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+        <script>
+            const host = window.location.hostname;
+            const socket = io.connect('http://' + host + ':3000');
+            const stream1 = 'stream1';
+            const stream2 = 'stream2';
+            const stream3 = 'stream3';
+            const stream4 = 'stream4';
+            const setImg = (image, name) => {
+                const imageElm = document.getElementById(name);
+                // imageElm.src = `data:image/jpeg;base64,${image}`;
+                imageElm.src = image + '?rng='+Math.random();
+            };
+            socket.on(stream1, (image) => {setImg(image, stream1)});
+            socket.on(stream2, (image) => {setImg(image, stream2)});
+            socket.on(stream3, (image) => {setImg(image, stream3)});
+            socket.on(stream4, (image) => {setImg(image, stream4)});
+        </script>
+    </body>
+</html>

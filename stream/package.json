@@ -1,0 +1,23 @@
+{
+  "name": "nodeapp",
+  "version": "1.0.0",
+  "dependencies": {
+    "cli": "^1.0.1",
+    "express": "^4.16.3",
+    "express-basic-auth": "^1.2.0",
+    "express-http-proxy": "^1.6.2",
+    "http-proxy-middleware": "^1.0.6",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.19.4",
+    "pug": "^2.0.3",
+    "read-last-lines": "^1.8.0",
+    "recursive-readdir": "^2.2.2",
+    "request": "^2.88.0",
+    "serve-index": "^1.9.1",
+    "socket.io": "^2.2.0",
+    "tail": "^2.2.0"
+  },
+  "scripts": {
+    "start": "nodemon --inspect=0.0.0.0:9229 src/app.js"
+  }
+}

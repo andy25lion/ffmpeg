@@ -1,0 +1,162 @@
+html
+    head
+        style.
+            .stream-video {
+                width: 640px;
+            }
+            video {
+                background-color: black;
+            }
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js")
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js")
+        script(src="https://cdn.jsdelivr.net/npm/hls.js")
+        script.
+            var hlsConfig = {
+                autoStartLoad: true,
+                startPosition: -1,
+                debug: false,
+                capLevelOnFPSDrop: false,
+                capLevelToPlayerSize: false,
+                defaultAudioCodec: undefined,
+                initialLiveManifestSize: 1,
+                maxBufferLength: 30,
+                maxMaxBufferLength: 600,
+                backBufferLength: Infinity,
+                maxBufferSize: 60 * 1000 * 1000,
+                maxBufferHole: 0.5,
+                highBufferWatchdogPeriod: 2,
+                nudgeOffset: 0.1,
+                nudgeMaxRetry: 3,
+                maxFragLookUpTolerance: 0.25,
+                liveSyncDurationCount: 1,
+                liveMaxLatencyDurationCount: 2,
+                liveDurationInfinity: true,
+                enableWorker: true,
+                enableSoftwareAES: true,
+                manifestLoadingTimeOut: 10000,
+                manifestLoadingMaxRetry: 1,
+                manifestLoadingRetryDelay: 1000,
+                manifestLoadingMaxRetryTimeout: 64000,
+                startLevel: undefined,
+                levelLoadingTimeOut: 10000,
+                levelLoadingMaxRetry: 40,
+                levelLoadingRetryDelay: 1000,
+                levelLoadingMaxRetryTimeout: 64000,
+                fragLoadingTimeOut: 20000,
+                fragLoadingMaxRetry: 6,
+                fragLoadingRetryDelay: 1000,
+                fragLoadingMaxRetryTimeout: 64000,
+                startFragPrefetch: false,
+                testBandwidth: true,
+                progressive: false,
+                lowLatencyMode: true,
+                fpsDroppedMonitoringPeriod: 5000,
+                fpsDroppedMonitoringThreshold: 0.2,
+                appendErrorMaxRetry: 3,
+                enableWebVTT: true,
+                enableIMSC1: true,
+                enableCEA708Captions: true,
+                stretchShortVideoTrack: false,
+                maxAudioFramesDrift: 1,
+                forceKeyFrameOnDiscontinuity: true,
+                abrEwmaFastLive: 3.0,
+                abrEwmaSlowLive: 9.0,
+                abrEwmaFastVoD: 3.0,
+                abrEwmaSlowVoD: 9.0,
+                abrEwmaDefaultEstimate: 500000,
+                abrBandWidthFactor: 0.95,
+                abrBandWidthUpFactor: 0.7,
+                abrMaxWithRealBitrate: false,
+                maxStarvationDelay: 4,
+                maxLoadingDelay: 4,
+                minAutoBitrate: 0,
+                emeEnabled: false,
+                widevineLicenseUrl: undefined,
+                licenseXhrSetup: undefined,
+                drmSystemOptions: {},
+                maxLiveSyncPlaybackRate: 2,
+                // liveMaxLatencyDuration: 1,
+                // liveSyncDuration: 0.5,
+            };
+
+            const loadLiveImgType = (stream) => {
+                $('#'+stream.streamName).attr('src', stream.lastFile);
+            }
+
+            const loadVideoType = (stream) => {
+                vid = $('#'+stream.streamName);
+                if (!vid[0].src.endsWith(stream.lastFile)) {
+                    vid[0].src = stream.lastFile;
+                } else {
+                    vid.on('ended', function() {
+                        $(this)[0].src = stream.lastFile;
+                    });
+                }
+                //- if (!model.streams[streamName].delayedUpdate && !vid[0].src.includes(model.streams[streamName].lastFile)) {
+                //-     vid[0].src = model.streams[streamName].lastFile;
+                //- }
+            }
+
+            const loadHlsType = (stream) => {
+                vid = $('#'+stream.streamName);
+                var videoSrc = stream.playlistPath;
+                if (Hls.isSupported()) {
+                    var hls = new Hls(hlsConfig);
+                    hls.loadSource(videoSrc);
+                    hls.attachMedia(vid[0]);
+                    //- hls.on(Hls.Events.MANIFEST_PARSED,function() {
+                    //-     vid[0].play();
+                    //- });
+                }
+                else if (vid[0].canPlayType('application/vnd.apple.mpegurl')) {
+                    vid[0].src = videoSrc;
+                }
+            }
+
+            $(document).ready(function(){
+                let firstLoad = true;
+                const refreshFrontend = () => {
+
+                    try {
+                        $.get( "/model", function( frontendModel ) {
+                            //- console.log(frontendModel)
+                            let force = false;
+                            if (firstLoad){
+                                force = true;
+                                firstLoad = false;
+                            }
+                            model = frontendModel;
+                            for (const streamName in model.streams) {
+                                var crtStream = model.streams[streamName]
+                                crtStream.streamName = streamName
+                                if (crtStream.type == 'liveimg' && (crtStream.refreshInterval != 0 || force)) {
+                                    loadLiveImgType(crtStream)
+                                }
+                                else if (crtStream.type == 'video' && (crtStream.refreshInterval != 0 || force)) {
+                                    loadVideoType(crtStream)
+                                }
+                                else if (crtStream.type == 'hls' && (crtStream.refreshInterval != 0 || force)) {
+                                    loadHlsType(crtStream)
+                                }
+                            }
+                            //- setTimeout(refreshFrontend, 500);
+                        });
+                    } catch (e) {
+                        console.log(e);
+                        //- setTimeout(refreshFrontend, 500);
+                    }
+                }
+
+                setInterval(refreshFrontend, 500)
+
+                //- setTimeout(() => {
+                //-     window.location.reload(true);
+                //- }, 60000);
+                
+            });
+    body
+        each stream, streamName in streams
+            if ['video', 'hls'].includes(stream.type)
+                video.stream-video(id=streamName src=stream.lastFile autoplay playsinline muted)
+            else if ['liveimg', 'proxy'].includes(stream.type) 
+                img.stream-img(id=streamName src=stream.lastFile)

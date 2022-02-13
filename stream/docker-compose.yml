@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  webserver:
+    image: andy25lion/liveview:v1.0.2
+    ports:
+      - 3000:3000
+    volumes:
+      - ../data:/data
+    environment: 
+      - CONFIG_PATH=/data/config.json
+  stream1:
+    image: andy25lion/recorder:v1.0.2
+    volumes:
+      - ../data:/data
+    environment: 
+      - CONFIG_PATH=/data/config.json
+      - STREAM=stream1
+  stream2:
+    image: andy25lion/recorder:v1.0.2
+    volumes:
+      - ../data:/data
+    environment: 
+      - CONFIG_PATH=/data/config.json
+      - STREAM=stream2
+  stream3:
+    image: andy25lion/blink:v1.0.1
+    restart: unless-stopped
+    volumes:
+      - ../data:/data
+    environment: 
+      - CONFIG_PATH=/data/config.json
+      - STREAM=stream3

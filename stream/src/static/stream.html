@@ -1,0 +1,23 @@
+<html>
+    <body>
+        <img id="image">
+        <img id="template">
+        <img id="aux">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+        <script>
+            const socket = io.connect('http://127.0.0.1:3000');
+            socket.on('image', (image) => {
+                const imageElm = document.getElementById('image');
+                imageElm.src = `data:image/jpeg;base64,${image}`;
+            });
+            socket.on('template', (image) => {
+                const imageElm = document.getElementById('template');
+                imageElm.src = `data:image/jpeg;base64,${image}`;
+            });
+            socket.on('aux', (image) => {
+                const imageElm = document.getElementById('aux');
+                imageElm.src = `data:image/jpeg;base64,${image}`;
+            });
+        </script>
+    </body>
+</html>

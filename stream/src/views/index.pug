@@ -1,0 +1,30 @@
+html
+    style.
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto auto auto auto auto auto auto auto;
+        }
+
+        .grid-item {
+        }
+        .thumb{
+            width: 160px;
+            height: 90px;
+        }
+        .bad-img {
+            border:2px solid #c90606;
+        }
+        .path {
+            overflow: hidden;
+            white-space: nowrap;
+            overflow: scroll;
+            width: 160px;
+            margin: 0px;
+        }
+
+    body
+        div.grid-container
+            each file in fileList
+                div.grid-item 
+                    img.thumb(src=file.pathMasked)
+                    p.path #{file.pathMasked}
